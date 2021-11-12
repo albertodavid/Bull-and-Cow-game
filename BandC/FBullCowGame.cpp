@@ -1,11 +1,16 @@
 #include "FBullCowGame.h"
+#include <iostream>
+#include <set>
+#include <map>
+
+#define TMap std::map
+#define TSet std::set
 
 using int32 = int;
 
 FBullCowGame::FBullCowGame()
 {
 	Reset(); //Esto se va ejecutar cada vez que llamemos a un objeto nuevo
-	
 }
 
 void FBullCowGame::Reset()
@@ -16,6 +21,8 @@ void FBullCowGame::Reset()
 int32 FBullCowGame::GetMaxTries() const {	return MyMaxTries; }
 
 int32 FBullCowGame::GetCurrentTry() const  { return MyCurrentTry; }
+
+int32 FBullCowGame::GetHiddenWordLength() const{ return MyHiddenWord.length();}
 
 void FBullCowGame::SetCurrentTry()
 {
@@ -33,19 +40,50 @@ void FBullCowGame::SetHiddenWord()
 	MyHiddenWord = HIDDEN_WORD;
 }
 
-bool FBullCowGame::IsGameWon() const
+bool FBullCowGame::IsGameWon(FBullCowCount FBFBullCowCount) const
 {
-	return false;
+	if (FBFBullCowCount.Bulls == MyHiddenWord.length())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
-bool FBullCowGame::CheckGuessValidity(FString)
+EWordStatus FBullCowGame::CheckGuessValidity(FString Guess) const
 {
-	return false;
+	FString LowGuess;
+	TSet <char> SetOfCharacters;
+
+	for (int i = 0; i < Guess.length(); i++)
+	{
+		LowGuess.push_back(std::tolower(Guess[i]));
+		SetOfCharacters.insert(Guess[i]);
+	}
+
+	if (MyHiddenWord.length() != Guess.length())
+	{
+		return EWordStatus::Not_Same_Length;
+	}
+	else if (LowGuess != Guess)
+	{
+		return EWordStatus::Not_Lowercase;
+	}
+	else if (SetOfCharacters.size() != MyHiddenWord.length())
+	{
+	return EWordStatus::Not_Isogram;
+	}
+	else
+	{
+		return EWordStatus::OK;
+	}
+
 }
 
-FBullCowCount FBullCowGame::SubmitGuess(FString a)
+FBullCowCount FBullCowGame::SubmitValidGuess(FString a)
 {
-
 	SetCurrentTry();
 
 	FString Guess = a;
@@ -70,8 +108,6 @@ FBullCowCount FBullCowGame::SubmitGuess(FString a)
 		}
 
 	}
-
-
 
 	return BullCowCount;
 }
